@@ -33,21 +33,33 @@ class hl7():
 
     def data(self):
         data = self.hl7Dict
+        # check for device type aand set value to key
+        if 'ICD' in data.get('MDC_IDC_DEV_TYPE'):
+            MDC_IDC_DEV_TYPE = 'ICD'
+        elif 'IPG' in data.get('MDC_IDC_DEV_TYPE'):
+            MDC_IDC_DEV_TYPE = 'PPM'
+        else:
+            MDC_IDC_DEV_TYPE = 'Unkown'
+        # check for device manufacturer aand set value to key
+        if 'BSX' in data.get('MDC_IDC_DEV_MFG'):
+            MDC_IDC_DEV_MFG = 'BSC'
+        else:
+            MDC_IDC_DEV_MFG = 'Unkown'
 
         self.bsc_Dict = {'name_given':data.get('MDC_ATTR_PT_NAME_GIVEN', 'Not Given'),
-                        'name_family':data.get('MDC_ATTR_PT_NAME_FAMILY'', 'Not Given'),
+                        'name_family':data.get('MDC_ATTR_PT_NAME_FAMILY', 'Not Given'),
                         'client_id':data.get('', '-'),
                         'followup_physician':data.get('', '-'),
                         'sess_date':data.get('MDC_IDC_SESS_DTM', datetime.datetime.now(tz=None).strftime("%d-%m-%Y %H:%M:%S")),
                         'dev_implant_date': data.get('MDC_IDC_DEV_IMPLANT_DT'),
-                        'type':data.get('SystemTypeTierName', '-'),
+                        'type': MDC_IDC_DEV_TYPE,
                         'model':data.get('MDC_IDC_DEV_MODEL', '-'),
                         'serial':data.get('MDC_IDC_DEV_SERIAL', '-'),
-                        'mfg':'Boston Scientific',
+                        'mfg':MDC_IDC_DEV_MFG,
 
                         ###### diagnostics
-                        'ra_percent_paced':data.get('', '0'), # ra pacing percentage
-                        'rv_percent_paced':data.get('', '0'), # rv pacing percentage
+                        'ra_percent_paced':data.get('MDC_IDC_STAT_BRADY_RA_PERCENT_PACED', '0'), # ra pacing percentage
+                        'rv_percent_paced':data.get('MDC_IDC_STAT_BRADY_RV_PERCENT_PACED', '0'), # rv pacing percentage
                         'lv_percent_paced':data.get('', '0'), # LV pacing percentage
                         'biv_percent_paced':data.get('', '0'), # biventricular pacing percentage
 
@@ -109,13 +121,19 @@ class hl7():
                         ##### Battery
                         'batt_voltage':data.get('', '0'),# not found currently in bnk file
                         'batt_remaining':data.get('DC_IDC_MSMT_BATTERY_REMAINING_PERCENTAGE', '-'), # not found currently in bnk file
-                        'batt_status':data.get('BatteryStatus.BatteryPhase', '-
+                        'batt_status':data.get('BatteryStatus.BatteryPhase', '-'),
+                        'batt_chrge_time':data.get('MDC_IDC_MSMT_CAP_CHARGE_TIME', '0')
+                        }
+        return self.bsc_Dict
+        
+
 
 if __name__ == "__main__":
-    fileName = ""
+    fileName = "examples\\csc_20190416121705_602864789_21.hl7"
     dataclass = hl7()
-    datamethod = dataclass.data(fileName)
-    print(datamethod)
+    datamethod = dataclass.getData(fileName)
+    dataResult = dataclass.data()
+    print(dataResult)
     # def listData():
     #     for k, v in iter(datamethod.items()):
     #         print(k +" : "+ str(v))
