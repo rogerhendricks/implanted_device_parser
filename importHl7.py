@@ -17,16 +17,14 @@ class hl7():
                 key = obxList[obxdata].observation_identifier[1]
                 value  = obxList[obxdata].observation_value[0]
                 obxDict[str(key)] = str(value)
-            #return obxDict
 
             # adding PID and MSH seperately as they do not change and are required as a valid hl7 message
             pidDict['MDC_ATTR_PT_NAME_GIVEN'] = str(h.pid.patient_name[0][1])
             pidDict['MDC_ATTR_PT_NAME_FAMILY'] = str(h.pid.patient_name[0][0])
 
-            mshDict['SEND_DATE'] = str(h.msh[7])
-            mshDict['SENDING_FACILITY'] = str(h.msh[4])
-            mshDict['RECEIVING_FACILITY'] = str(h.msh[6])
-
+            mshDict['SEND_DATE'] = str(h.msh[5])
+            mshDict['SENDING_FACILITY'] = str(h.msh[2])
+            mshDict['RECEIVING_FACILITY'] = str(h.msh[4])
             self.hl7Dict = dict(**pidDict,**mshDict, **obxDict)
             return self.hl7Dict
             #print(self.hl7Dict)
@@ -40,12 +38,7 @@ class hl7():
             MDC_IDC_DEV_TYPE = 'PPM'
         else:
             MDC_IDC_DEV_TYPE = 'Unkown'
-        # check for device manufacturer aand set value to key
-        if 'BSX' in data.get('MDC_IDC_DEV_MFG'):
-            MDC_IDC_DEV_MFG = 'BSC'
-        else:
-            MDC_IDC_DEV_MFG = 'Unkown'
-
+        
         self.bsc_Dict = {'name_given':data.get('MDC_ATTR_PT_NAME_GIVEN', 'Not Given'),
                         'name_family':data.get('MDC_ATTR_PT_NAME_FAMILY', 'Not Given'),
                         'client_id':data.get('', '-'),
@@ -55,7 +48,7 @@ class hl7():
                         'type': MDC_IDC_DEV_TYPE,
                         'model':data.get('MDC_IDC_DEV_MODEL', '-'),
                         'serial':data.get('MDC_IDC_DEV_SERIAL', '-'),
-                        'mfg':MDC_IDC_DEV_MFG,
+                        'mfg': data.get('SENDING_FACILITY', '-'),
 
                         ###### diagnostics
                         'ra_percent_paced':data.get('MDC_IDC_STAT_BRADY_RA_PERCENT_PACED', '0'), # ra pacing percentage
@@ -129,7 +122,8 @@ class hl7():
 
 
 if __name__ == "__main__":
-    fileName = "examples\\csc_20190416121705_602864789_21.hl7"
+    #fileName = "examples\\csc_20190416121705_602864789_21.hl7"
+    fileName = "examples/BSC/27814701619069872556.hl7"
     dataclass = hl7()
     datamethod = dataclass.getData(fileName)
     dataResult = dataclass.data()
