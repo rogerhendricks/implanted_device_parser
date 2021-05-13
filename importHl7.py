@@ -128,7 +128,6 @@ if __name__ == "__main__":
     datamethod = dataclass.getData(fileName)
     dataResult = dataclass.data()
     print(dataResult)
-
     # def listData():
     #     for k, v in iter(datamethod.items()):
     #         print(k +" : "+ str(v))
